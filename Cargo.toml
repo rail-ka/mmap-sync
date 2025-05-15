@@ -1,10 +1,11 @@
 [package]
-name = "mmap-sync"
-version = "2.0.1"
-edition = "2021"
+name = "mmap-sync2"
+version = "3.0.0"
+edition = "2024"
 authors = [
     "Alex Bocharov <bocharov.alexandr@gmail.com>",
     "Austin Hartzheim <ahartzheim@cloudflare.com>",
+    "Rail Khusnutdinov <rail@33.run>",
 ]
 description = "A Rust package allowing sharing of data between processes in a wait-free and zero-copy fashion from mapped memory."
 license = "Apache-2.0"
@@ -14,20 +15,19 @@ keywords = ["memory-mapping", "synchronization", "interprocess", "wait-free", "z
 categories = ["os", "filesystem", "concurrency", "data-structures", "memory-management"]
 
 [dependencies]
-bytecheck = { version = "~0.6.8", default-features = false }
-memmap2 = "0.9.4"
-rkyv = { version = "0.7.40", features = ["validation", "strict"] }
-thiserror = "1.0.30"
-wyhash = "0.5.0"
+memmap2 = "0.9"
+rkyv = { version = "0.8", features = ["aligned"] }
+thiserror = "2.0"
+wyhash = "0.5"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.0"
+libc = "0.2"
 
 [dev-dependencies]
-criterion = { version = "0.5.1", features = ["html_reports"] }
-pprof = { version = "0.14.0", features = ["flamegraph", "protobuf-codec", "criterion"] }
-proptest = "1.0.0"
-rand = "0.8.5"
+criterion = { version = "0.5", features = ["html_reports"] }
+pprof = { version = "0.14", features = ["flamegraph", "protobuf-codec", "criterion"] }
+proptest = "1.0"
+rand = "0.9"
 
 [[bench]]
 name = "synchronizer"

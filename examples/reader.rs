@@ -1,7 +1,7 @@
 mod common;
 
 use common::HelloWorld;
-use mmap_sync::synchronizer::Synchronizer;
+use mmap_sync2::synchronizer::Synchronizer;
 
 fn main() {
     // Initialize the Synchronizer

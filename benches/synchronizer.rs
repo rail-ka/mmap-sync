@@ -2,19 +2,17 @@ use std::env;
 use std::fs;
 use std::time::Duration;
 
-use bytecheck::CheckBytes;
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
+use criterion::{Criterion, Throughput, black_box, criterion_group, criterion_main};
 use pprof::criterion::PProfProfiler;
-use rkyv::{AlignedVec, Archive, Deserialize, Serialize};
+use rkyv::{Archive, Deserialize, Serialize, rancor::Error as RkyvErr, util::AlignedVec};
 #[cfg(unix)]
 use wyhash::WyHash;
 
 #[cfg(unix)]
-use mmap_sync::locks::{LockDisabled, SingleWriter};
-use mmap_sync::synchronizer::Synchronizer;
+use mmap_sync2::locks::{LockDisabled, SingleWriter};
+use mmap_sync2::synchronizer::Synchronizer;
 /// Example data-structure shared between writer and reader(s)
 #[derive(Archive, Deserialize, Serialize, Debug, PartialEq)]
-#[archive_attr(derive(CheckBytes))]
 pub struct HelloWorld {
     pub version: u32,
     pub messages: Vec<String>,
@@ -25,7 +23,7 @@ fn build_mock_data() -> (HelloWorld, AlignedVec) {
         version: 7,
         messages: vec!["Hello".to_string(), "World".to_string(), "!".to_string()],
     };
-    let bytes = rkyv::to_bytes::<HelloWorld, 1024>(&data).unwrap();
+    let bytes = rkyv::to_bytes::<RkyvErr>(&data).unwrap();
 
     (data, bytes)
 }
@@ -43,13 +41,12 @@ fn derive_shm_path(subpath: &str) -> String {
                 DEFAULT_ROOT.into()
             } else {
                 // now check that configured path exists and is a directory, warning if not
-                if match fs::metadata(requested_root) {
-                    Ok(md) if md.is_dir() => true,
-                    _ => false,
-                } {
+                if matches!(fs::metadata(requested_root), Ok(md) if md.is_dir()) {
                     requested_root.into()
                 } else {
-                    eprintln!("requested root directory '{requested_root}' specified in environment variable '{EV_NAME}' does not exist or is not a directory; will attempt to use default location '{DEFAULT_ROOT}'");
+                    eprintln!(
+                        "requested root directory '{requested_root}' specified in environment variable '{EV_NAME}' does not exist or is not a directory; will attempt to use default location '{DEFAULT_ROOT}'"
+                    );
 
                     DEFAULT_ROOT.into()
                 }

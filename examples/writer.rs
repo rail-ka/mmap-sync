@@ -1,7 +1,7 @@
 mod common;
 
 use common::HelloWorld;
-use mmap_sync::synchronizer::Synchronizer;
+use mmap_sync2::synchronizer::Synchronizer;
 use std::time::Duration;
 
 fn main() {
@@ -20,5 +20,5 @@ fn main() {
         .expect("failed to write data");
 
     // Show how many bytes written and whether state was reset
-    println!("written: {} bytes | reset: {}", written, reset);
+    println!("written: {written} bytes | reset: {reset}");
 }
